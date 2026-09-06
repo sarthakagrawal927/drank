@@ -68,5 +68,5 @@ if running locally.
   downloadable copies surfaced on the `/data` page.
 
 The workflow is owned at the Fleet monorepo root and runs its commands from
-the repository root, so GitHub discovers the schedule while Drank retains
+the repository root, so GitHub discovers the schedule while DRank retains
 the script and data-path contract.
