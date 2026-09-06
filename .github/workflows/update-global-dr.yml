@@ -26,9 +26,15 @@ jobs:
 
       - name: Update global DR data
         run: node scripts/update-global-dr.mjs
+        env:
+          # Required by api.ahrefs.com/v3/public/domain-rating-free since 2026-08-10.
+          # Without it the endpoint returns 403 and the collector appends nothing.
+          AHREFS_API_KEY: ${{ secrets.AHREFS_API_KEY }}
 
       - name: Update Fleet domain DR data
         run: node scripts/update-global-dr.mjs --sites data/fleet-sites.json --data data/fleet-dr.json --label fleet
+        env:
+          AHREFS_API_KEY: ${{ secrets.AHREFS_API_KEY }}
 
       - name: Commit changes (if any)
         run: |
