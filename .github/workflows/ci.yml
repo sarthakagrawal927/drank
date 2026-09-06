@@ -1,4 +1,4 @@
-name: Drank CI
+name: DRank CI
 
 on:
   push:

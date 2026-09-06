@@ -46,7 +46,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: `{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://sarthakagrawal.dev/#person","name":"Sarthak Agrawal","jobTitle":"AI Infrastructure & Product Engineer","url":"https://sarthakagrawal.dev","image":"https://avatars.githubusercontent.com/u/43884471?v=4","sameAs":["https://sarthakagrawal.dev","https://www.linkedin.com/in/sarthakagrawal927","https://github.com/sarthakagrawal927","https://x.com/sarthakcodes","https://huggingface.co/sarthakagrawal927"],"knowsAbout":["AI infrastructure","Local-first software","Post-training language models","AI code review","Cloudflare Workers","TypeScript","Rust"],"affiliation":{"@type":"Organization","@id":"https://sassmaker.com/#app","name":"SaaS Maker","url":"https://sassmaker.com"}},{"@type":"WebSite","@id":"https://domains.sassmaker.com/#app","name":"Drank","url":"https://domains.sassmaker.com","description":"Ahrefs Domain Rating tracker feeding High Signal /domains and fleet domain marketing work.","publisher":{"@id":"https://sarthakagrawal.dev/#person"},"sameAs":["https://github.com/sass-maker"]}]}`,
+            __html: `{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://sarthakagrawal.dev/#person","name":"Sarthak Agrawal","jobTitle":"AI Infrastructure & Product Engineer","url":"https://sarthakagrawal.dev","image":"https://avatars.githubusercontent.com/u/43884471?v=4","sameAs":["https://sarthakagrawal.dev","https://www.linkedin.com/in/sarthakagrawal927","https://github.com/sarthakagrawal927","https://x.com/sarthakcodes","https://huggingface.co/sarthakagrawal927"],"knowsAbout":["AI infrastructure","Local-first software","Post-training language models","AI code review","Cloudflare Workers","TypeScript","Rust"],"affiliation":{"@type":"Organization","@id":"https://sassmaker.com/#app","name":"SaaS Maker","url":"https://sassmaker.com"}},{"@type":"WebSite","@id":"https://domains.sassmaker.com/#app","name":"DRank","url":"https://domains.sassmaker.com","description":"Ahrefs Domain Rating tracker feeding High Signal /domains and fleet domain marketing work.","publisher":{"@id":"https://sarthakagrawal.dev/#person"},"sameAs":["https://github.com/sass-maker"]}]}`,
           }}
         />
         {/* fleet-jsonld:end */}
@@ -75,7 +75,7 @@ export default function RootLayout({
         </div>
         <MonitoringProvider>{children}</MonitoringProvider>
         <script src="https://sassmaker.com/project-strip.js" data-project="drank" defer />
-        <script src="https://sassmaker.com/ai-chat-footer.js" data-name="Drank" defer />
+        <script src="https://sassmaker.com/ai-chat-footer.js" data-name="DRank" defer />
       </body>
     </html>
   );

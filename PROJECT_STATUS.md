@@ -47,7 +47,7 @@ Wrangler Pages command). CI validates `main` but does not deploy it.
 ## Timeline
 
 - **2026-08-20 — Standalone ownership restored:** Synchronized the maintained
-  Drank source out of Fleet Workspace into `sass-maker/drank`, restored local
+  DRank source out of Fleet Workspace into `sass-maker/drank`, restored local
   checks and documentation, and made deploys explicitly manual. Fleet retains
   only portfolio and cross-product metric references.
 - **2026-08-12** — Adopted Fleet's measurable code-health gate across format,
@@ -95,7 +95,7 @@ Wrangler Pages command). CI validates `main` but does not deploy it.
 
 - **Standalone dashboard:** single-page app (`app/page.tsx`); deploys to Cloudflare Pages (static export). Also runs locally at http://localhost:3000.
 - **Changelog:** `/changelog` keeps verified product history on the product
-  domain; planned work remains in Drank's GitHub Issues.
+  domain; planned work remains in DRank's GitHub Issues.
 - **Shared data pipeline:** `data/global-dr.json` + `data/global-sites.json` —
   ~45 global example sites; the static export publishes current observations
   at `/data/global-dr.json` while the site list remains build-pinned.
