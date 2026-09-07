@@ -94,5 +94,40 @@ through August 17, while its dataset deep link did not open history. The repaire
 local static build opens the matching history, dismisses without reopening, and
 shows all 45 historical rows with unavailable current-week comparisons.
 
-Fresh provider collection and production deployment remain
-[#18](https://github.com/sass-maker/drank/issues/18).
+### Live proxy and personal journey follow-up
+
+Fresh anonymous Chrome contexts on September 7 verified the deployed personal
+journey: add an owned domain, receive a real proxy result, refresh history,
+reload, export through the UI, import into a fresh 390 px browser, then reload
+with identical history. There is no signed-in variant: personal state is local.
+The same public proxy returned valid fresh results for all 45 shared domains
+at the existing 650 ms collector pacing. This does not verify the scheduled
+collector's direct-provider credential or deploy a new shared snapshot.
+
+The browser exposed two source defects: the personal/weekly count stayed zero
+after adding a site, and the narrow header clipped controls while Settings lost
+its accessible name. The count now derives from reactive domain state; compact
+header buttons retain accessible labels. Built-static-browser checks at 390 and
+1440 px verified all three controls within the viewport, import count 1, add
+count 2, reload count 2, and no horizontal overflow. Those local add lookups used
+an explicitly synthetic API response. Full quality (80 tests) and build passed.
+These repairs are source-qualified, not deployed.
+
+The new raw bulk snapshot was kept out of the public repository. The current
+[Ahrefs DR license](https://ahrefs.com/legal/domain-rating-license) requires a
+legible adjacent linked “Domain Rating by Ahrefs” attribution and restricts raw
+DR redistribution and competing data services. Public dataset/download and
+cross-product distribution need an explicit review against those terms; the
+existing generic footer alone is not proof of that qualification. This is a
+distribution gate, not a claim that fresh provider access failed.
+
+Remaining [#18](https://github.com/sass-maker/drank/issues/18) acceptance:
+
+- Verify the scheduled direct-provider collector records successful observations
+  with correct freshness; public-proxy success does not establish that path.
+- Resolve attribution and raw-data distribution scope before publishing a new
+  shared dataset or treating cross-product reuse as qualified.
+- Deploy the checked source through an authorized release and repeat narrow and
+  desktop personal/history/data-link journeys against that exact deployment.
+- Retain the owner-authored learning notes; advisor and public nomination paths
+  were not exercised in this personal-tracking qualification.

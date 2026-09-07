@@ -702,7 +702,7 @@ function Header({
 }) {
   return (
     <div className="sticky top-0 z-50 border-b border-white/10 bg-zinc-950/95 backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-zinc-950 shadow-inner">
             <BarChart3 className="h-5 w-5" />
@@ -715,24 +715,27 @@ function Header({
         <div className="flex items-center gap-2">
           <button
             onClick={onSettings}
-            className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm hover:bg-white/10 active:bg-white/5 transition"
+            className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 sm:px-4 sm:py-2 text-sm hover:bg-white/10 active:bg-white/5 transition"
           >
             <Settings className="h-4 w-4" />
-            <span className="hidden sm:inline">Settings</span>
+            <span className="sr-only sm:not-sr-only">Settings</span>
           </button>
           <button
             onClick={onExport}
-            className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm hover:bg-white/10"
+            className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 sm:px-4 sm:py-2 text-sm hover:bg-white/10"
           >
-            <Download className="h-4 w-4" /> Export
+            <Download className="h-4 w-4" />
+            <span className="sr-only sm:not-sr-only">Export</span>
           </button>
           <button
             onClick={onRefreshAll}
             disabled={isRefreshingAll}
-            className="flex items-center gap-2 rounded-2xl bg-white px-5 py-2 text-sm font-medium text-zinc-950 hover:bg-zinc-200 active:bg-zinc-300 disabled:opacity-60 transition"
+            className="flex items-center gap-2 rounded-2xl bg-white p-3 sm:px-5 sm:py-2 text-sm font-medium text-zinc-950 hover:bg-zinc-200 active:bg-zinc-300 disabled:opacity-60 transition"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshingAll ? 'animate-spin' : ''}`} />
-            {isRefreshingAll ? 'Refreshing…' : 'Refresh all'}
+            <span className="sr-only sm:not-sr-only">
+              {isRefreshingAll ? 'Refreshing…' : 'Refresh all'}
+            </span>
           </button>
         </div>
       </div>

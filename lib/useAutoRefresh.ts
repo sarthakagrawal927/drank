@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { saveState } from './utils';
 import type { Prediction, Toast, TrackedDomain } from './types';
 
@@ -78,11 +78,6 @@ export function useAutoRefresh({
   const [lastAutoRefresh, setLastAutoRefresh] = useState<number | null>(initial.lastAutoRefresh);
   const autoRefreshInFlightRef = useRef(false);
 
-  const customCount = useMemo(
-    () => domainsRef.current.filter((d) => d.isCustom).length,
-    [domainsRef]
-  );
-
   const runAutoRefreshNow = useCallback(async () => {
     if (autoRefreshInFlightRef.current) return;
     const customDomains = domainsRef.current.filter((d) => d.isCustom);
@@ -133,7 +128,6 @@ export function useAutoRefresh({
     setLastAutoRefresh,
     toggleAutoRefresh,
     runAutoRefreshNow,
-    customCount,
   };
 }
 

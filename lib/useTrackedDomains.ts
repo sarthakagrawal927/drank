@@ -278,7 +278,6 @@ function useDomainRefresh(ctx: DomainRefreshCtx) {
     setLastAutoRefresh,
     toggleAutoRefresh,
     runAutoRefreshNow,
-    customCount,
   } = useAutoRefresh({
     domainsRef: ctx.domainsRef,
     isLoading: ctx.isLoading,
@@ -332,7 +331,6 @@ function useDomainRefresh(ctx: DomainRefreshCtx) {
     setLastAutoRefresh,
     toggleAutoRefresh,
     runAutoRefreshNow,
-    customCount,
   };
 }
 
@@ -600,6 +598,7 @@ export function useTrackedDomains(): UseTrackedDomainsReturn {
     ...m,
     ...io,
     ...p,
+    customCount: s.domains.filter((domain) => domain.isCustom).length,
     toasts,
     dismissToast,
   };

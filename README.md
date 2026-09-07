@@ -132,7 +132,8 @@ The core dataset and leaderboard from drank power a first-class lens inside [Hig
 ## Remaining work
 
 The verified local freshness/deep-link repair is [#17](https://github.com/sass-maker/drank/issues/17).
-Fresh provider access, successful observations, deployment and public data
+Live personal tracking and 45/45 fresh proxy lookups passed on September 7.
+Scheduled direct-provider collection, deployment and public data distribution
 qualification remain [#18](https://github.com/sass-maker/drank/issues/18), along
 with the retained owner-authored learning notes. See the
 [weekly job receipt](docs/operations/jobs/weekly-global-dr.md) for current evidence.
