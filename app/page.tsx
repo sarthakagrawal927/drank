@@ -27,6 +27,7 @@ import {
   formatNextAuto,
 } from '@/lib/utils';
 import type { Toast, TrackedDomain } from '@/lib/types';
+import { observationSummary } from '@/lib/data-freshness';
 import type { DrAdvisorRequest } from '@/lib/dr-advisor';
 import { DrAdvisor } from '@/components/DrAdvisor';
 import { DomainCard } from '@/components/DomainCard';
@@ -245,6 +246,15 @@ function useDrankState() {
     getUserDomain: tracked.getDomain,
     liveGlobalDomains,
   });
+  const initialDomainHandled = useRef(false);
+  useEffect(() => {
+    if (initialDomainHandled.current) return;
+    initialDomainHandled.current = true;
+    const domain = new URLSearchParams(window.location.search).get('domain');
+    if (domain && liveGlobalDomains.some((entry) => entry.domain === domain)) {
+      selection.openGlobalDomain(domain);
+    }
+  }, [liveGlobalDomains, selection.openGlobalDomain]);
   const [addInput, setAddInput] = useState('');
   const [nominateInput, setNominateInput] = useState('');
   const [isRefreshingAll, setIsRefreshingAll] = useState(false);
@@ -835,11 +845,12 @@ function GlobalExamplesSection({ state }: { state: DrankState }) {
             GLOBAL EXAMPLES
           </div>
           <div className="text-xs text-white/50">
-            Shared historical DR data for everyone • updated weekly via GitHub Action
+            Shared historical snapshots • collection is scheduled weekly; successful observations
+            may be older
           </div>
         </div>
         <div className="text-xs text-white/40 tabular-nums">
-          {state.liveGlobalDomains.length} sites • last shared update (live)
+          {observationSummary(state.liveGlobalDomains)}
         </div>
       </div>
       <div
@@ -867,14 +878,16 @@ function LeaderboardSection({ state }: { state: DrankState }) {
     <>
       <div className="mb-4 flex items-end justify-between">
         <div>
-          <div className="text-sm font-semibold tracking-wider text-white">CURRENT LEADERBOARD</div>
+          <div className="text-sm font-semibold tracking-wider text-white">
+            LATEST OBSERVED LEADERBOARD
+          </div>
           <div className="text-xs text-white/50">
             Ranked by Domain Rating • shared across all users from the GitHub-maintained JSON
           </div>
         </div>
         {state.predictionAccuracy != null && (
           <div className="text-right text-xs">
-            <span className="text-emerald-400 font-medium">Your prediction accuracy:</span>{' '}
+            <span className="text-emerald-400 font-medium">Your picks in this snapshot:</span>{' '}
             {state.predictionAccuracy.hits}/{state.predictionAccuracy.total} in Top 20 (
             {state.predictionAccuracy.percent}%)
           </div>

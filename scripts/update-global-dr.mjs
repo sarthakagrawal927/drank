@@ -42,6 +42,7 @@ async function fetchDR(domain) {
   const url = `${API_BASE}?target=${encodeURIComponent(domain)}&output=json`;
   try {
     const res = await fetch(url, {
+      signal: AbortSignal.timeout(15_000),
       headers: {
         'User-Agent': 'drank-global-update/1.0 (+github-actions)',
         Accept: 'application/json',
@@ -56,7 +57,7 @@ async function fetchDR(domain) {
     }
     const json = await res.json();
     const raw = json?.domain_rating?.domain_rating;
-    if (typeof raw === 'number') {
+    if (typeof raw === 'number' && Number.isFinite(raw) && raw >= 0 && raw <= 100) {
       return raw; // keep full decimal precision from Ahrefs
     }
     console.warn(`  [warn] ${domain} -> unexpected payload`);
@@ -94,65 +95,43 @@ async function main() {
     console.log('  No existing data, starting fresh.');
   }
 
-  const now = Date.now();
-  // Seed from existing data so domains removed from global-sites.json
-  // keep their accumulated history instead of being silently dropped
-  const updatedDomains = { ...(existing.domains || {}) };
-
-  for (let i = 0; i < sites.length; i++) {
-    const domain = sites[i];
-    process.stdout.write(`  Fetching ${domain}... `);
-
-    const dr = await fetchDR(domain);
-    const currentHistory = existing.domains?.[domain]?.history || [];
-
-    if (dr !== null) {
-      // Only append if we don't already have a point for "today" (same day, rough)
-      const today = new Date(now).toISOString().slice(0, 10);
-      const lastPoint = currentHistory[currentHistory.length - 1];
-      const lastDay = lastPoint ? new Date(lastPoint.ts).toISOString().slice(0, 10) : null;
-
-      const newHistory = [...currentHistory];
-
-      if (lastDay !== today) {
-        newHistory.push({ ts: now, dr });
-        console.log(`DR=${dr} (new point)`);
-      } else {
-        // Update the latest point for today if DR changed (rare for daily, but safe)
-        if (lastPoint.dr !== dr) {
-          newHistory[newHistory.length - 1] = { ts: now, dr };
-          console.log(`DR=${dr} (updated today's point)`);
-        } else {
-          console.log(`DR=${dr} (no change today)`);
-        }
-      }
-
-      // Optional: keep only last ~2 years of data to prevent unbounded growth
-      // const TWO_YEARS = 2 * 365 * 24 * 60 * 60 * 1000;
-      // newHistory = newHistory.filter(p => (now - p.ts) < TWO_YEARS);
-
-      updatedDomains[domain] = { history: newHistory };
-    } else {
-      // Keep previous history if fetch failed
-      updatedDomains[domain] = { history: currentHistory };
-      console.log('failed (kept previous)');
-    }
-
-    if (i < sites.length - 1) {
-      await sleep(DELAY_MS);
-    }
-  }
-
-  const newData = {
-    lastUpdated: new Date(now).toISOString(),
-    domains: updatedDomains,
-    // Preserve any community nominations / user submissions that have been merged into the shared data
-    communityNominations: existing.communityNominations || [],
-  };
+  const newData = await collectRatings(sites, existing, { fetchRating: fetchDR });
 
   writeFileSync(DATA_PATH, `${JSON.stringify(newData, null, 2)}\n`, 'utf8');
   console.log(`\nWrote ${DATA_PATH}`);
   console.log('Done.');
+}
+
+export async function collectRatings(sites, existing, options) {
+  const { fetchRating, now = Date.now(), delay = sleep } = options;
+  const domains = { ...(existing.domains || {}) };
+  let succeeded = 0;
+  for (const [index, domain] of sites.entries()) {
+    const dr = await fetchRating(domain);
+    if (typeof dr === 'number' && Number.isFinite(dr) && dr >= 0 && dr <= 100) {
+      const history = [...(domains[domain]?.history || [])];
+      const latest = history.at(-1);
+      const today = new Date(now).toISOString().slice(0, 10);
+      const latestDay = latest ? new Date(latest.ts).toISOString().slice(0, 10) : null;
+      // Each successful lookup is an observation, even if the value is unchanged.
+      if (latestDay === today) history[history.length - 1] = { ts: now, dr };
+      else history.push({ ts: now, dr });
+      domains[domain] = { history };
+      succeeded += 1;
+    }
+    if (index < sites.length - 1) await delay(DELAY_MS);
+  }
+  if (succeeded === 0) {
+    throw new Error(`No successful DR observations (${sites.length} attempted); history unchanged`);
+  }
+  console.log(`Collected ${succeeded}/${sites.length} domains; ${sites.length - succeeded} failed`);
+  return {
+    ...existing,
+    lastUpdated: new Date(now).toISOString(),
+    domains,
+    communityNominations: existing.communityNominations || [],
+    collection: { attempted: sites.length, succeeded, failed: sites.length - succeeded },
+  };
 }
 
 if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {

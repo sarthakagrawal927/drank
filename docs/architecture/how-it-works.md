@@ -37,7 +37,7 @@ flowchart TD
     subgraph Ext["External services"]
         Ahrefs["Ahrefs free public<br/>DR endpoint"]
         GW["fleet free-ai gateway"]
-        Raw["raw.githubusercontent.com<br/>data/global-dr.json"]
+        Raw["Deployed same-origin<br/>data/global-dr.json"]
     end
 
     subgraph GH["GitHub (weekly)"]
@@ -168,14 +168,13 @@ The shared leaderboard uses **two sources for the same data on purpose**:
 - **Build time:** `data/global-dr.json` and `data/global-sites.json` are
   `import`ed into `app/page.tsx`, so the leaderboard renders instantly with no
   network wait.
-- **Runtime:** a `useEffect` then refetches those same files from
-  `raw.githubusercontent.com/.../drank/main/data` with `cache: 'no-store'` and,
-  if the fetch succeeds, swaps in the fresher data. If it fails, the page
-  silently keeps the build-time copy.
+- **Runtime:** a `useEffect` refetches `/data/global-dr.json` from the deployed
+  same-origin copy by default, falling back to bundled data on failure. A public
+  external-origin override is available but not enabled by default.
 
-**Why both?** So the weekly Action's fresh numbers show up **without a
-redeploy**, while a failed or slow GitHub fetch never blocks first paint. See
-[ADR-0005](decisions/0005-dual-data-sources.md).
+Both default sources reflect a deployed snapshot. A new repository commit alone
+cannot update it. Actual observation dates determine freshness; see
+[ADR-0007](decisions/0007-observation-freshness.md).
 
 ### Flow D — asking the advisor
 
@@ -196,9 +195,9 @@ seed site (paced `DELAY_MS = 650`), appending a new `{ ts, dr }` point to each
 domain's history in `data/global-dr.json` / `data/fleet-dr.json`, copying them
 into `public/data/`, and **committing the result back to `main`**.
 
-That commit is what closes Flow C: the new JSON on `main` is exactly what the
-running app refetches from `raw.githubusercontent.com`. So the leaderboard stays
-fresh with zero deploys — the git repo *is* the shared database. See
+A successful collection commit prepares the next snapshot; a separate approved
+Pages deployment publishes it to the default runtime source. All-failed runs now
+exit nonzero and preserve history; partial success is counted explicitly. See
 [the weekly global DR job runbook](../operations/jobs/weekly-global-dr.md) and
 [the add-a-site runbook](../operations/runbooks/add-global-site.md).
 

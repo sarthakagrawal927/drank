@@ -1,7 +1,7 @@
 # ADR-0005 — Dual data sources (build-time static + runtime GitHub raw)
 
 **Date:** 2026-06
-**Status:** accepted
+**Status:** superseded by [ADR-0007](0007-observation-freshness.md)
 
 ## Context
 

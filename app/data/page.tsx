@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { observationSummary, recentWeeklyBaseline } from '@/lib/data-freshness';
 
 export const dynamic = 'force-static';
 
@@ -21,18 +22,9 @@ function loadGlobalDr(): GlobalDrFile {
 function getWeeklyChange(
   history: HistoryPoint[]
 ): { delta: number; direction: 'up' | 'down' | 'flat'; latest: number; previous: number } | null {
-  if (history.length < 2) return null;
-  const sorted = [...history].sort((a, b) => a.ts - b.ts);
-  const latest = sorted[sorted.length - 1];
-  const weekAgo = latest.ts - 7 * 24 * 60 * 60 * 1000;
-  let base: HistoryPoint | null = null;
-  for (let i = sorted.length - 2; i >= 0; i--) {
-    if (sorted[i].ts <= weekAgo + 2 * 24 * 60 * 60 * 1000) {
-      base = sorted[i];
-      break;
-    }
-  }
-  if (!base) base = sorted[0];
+  const comparison = recentWeeklyBaseline(history);
+  if (!comparison) return null;
+  const { latest, base } = comparison;
   const delta = Number((latest.dr - base.dr).toFixed(1));
   return {
     delta,
@@ -83,7 +75,13 @@ export default function DataPage() {
 
   const losers = movers.filter((m) => m.direction === 'down').sort((a, b) => a.delta - b.delta);
 
-  const allSorted = [...movers].sort((a, b) => b.latest - a.latest);
+  const allSorted = domainEntries
+    .map(([domain, { history }]) => {
+      const latest = [...history].sort((a, b) => a.ts - b.ts).at(-1)?.dr ?? null;
+      const change = getWeeklyChange(history);
+      return { domain, history, latest, delta: change?.delta, direction: change?.direction };
+    })
+    .sort((a, b) => (b.latest ?? -1) - (a.latest ?? -1));
   const totalDomains = domainEntries.length;
   const totalSnapshots = domainEntries.reduce((sum, [, d]) => sum + d.history.length, 0);
   const nominations = data.communityNominations ?? [];
@@ -93,7 +91,7 @@ export default function DataPage() {
     '@type': 'Dataset',
     name: 'drank Global Domain Rating History',
     description:
-      'Weekly Ahrefs Domain Rating (DR) snapshots for 45+ popular websites plus the SaaS Maker fleet domain set. Updated weekly via GitHub Actions.',
+      'Historical Ahrefs Domain Rating snapshots. Collection is scheduled weekly; observation dates determine freshness.',
     url: `${siteUrl}/data`,
     distribution: [
       {
@@ -129,9 +127,9 @@ export default function DataPage() {
 
         <h1 className="text-4xl font-semibold tracking-tight text-white mb-3">Public DR Dataset</h1>
         <p className="text-zinc-400 max-w-2xl mb-8">
-          Weekly Ahrefs Domain Rating snapshots for {totalDomains} popular websites plus the SaaS
-          Maker fleet domain set. The raw JSON is updated every Monday ~04:00 UTC via a GitHub
-          Action and mirrored here for download.
+          Historical Ahrefs Domain Rating snapshots for {totalDomains} popular websites plus the
+          SaaS Maker fleet domain set. Collection is scheduled weekly; success is not guaranteed.
+          This page and its downloads reflect the deployed snapshot.
         </p>
 
         <div className="grid grid-cols-3 gap-4 mb-10">
@@ -147,10 +145,13 @@ export default function DataPage() {
             <div className="text-2xl font-bold text-white">
               {formatDate(new Date(data.lastUpdated).getTime())}
             </div>
-            <div className="text-sm text-zinc-400">Last updated</div>
+            <div className="text-sm text-zinc-400">File timestamp (not observation freshness)</div>
           </div>
         </div>
 
+        <p className="mb-6 text-sm text-amber-300">
+          {observationSummary(domainEntries.map(([, domain]) => domain))}
+        </p>
         <div className="mb-10 flex gap-3">
           <a
             href="/data/global-dr.json"
@@ -171,8 +172,8 @@ export default function DataPage() {
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-white mb-1">Weekly DR Movers</h2>
           <p className="text-zinc-400 text-sm mb-6">
-            Change between the latest snapshot and the one ~7 days prior. Most established domains
-            are stable week-over-week; movers reflect recent backlink shifts.
+            Only observations at most 9 days old with a comparison 5–9 days earlier qualify. Older
+            or missing observations cannot establish current weekly movement.
           </p>
 
           {gainers.length > 0 && (
@@ -193,7 +194,9 @@ export default function DataPage() {
                       <tr key={m.domain} className="border-t border-zinc-800">
                         <td className="px-4 py-2 text-zinc-200">{m.domain}</td>
                         <td className="px-4 py-2 text-right text-zinc-400">{m.previous}</td>
-                        <td className="px-4 py-2 text-right text-white font-medium">{m.latest}</td>
+                        <td className="px-4 py-2 text-right text-white font-medium">
+                          {m.latest ?? '—'}
+                        </td>
                         <td className="px-4 py-2 text-right text-green-400 font-medium">
                           +{m.delta}
                         </td>
@@ -223,7 +226,9 @@ export default function DataPage() {
                       <tr key={m.domain} className="border-t border-zinc-800">
                         <td className="px-4 py-2 text-zinc-200">{m.domain}</td>
                         <td className="px-4 py-2 text-right text-zinc-400">{m.previous}</td>
-                        <td className="px-4 py-2 text-right text-white font-medium">{m.latest}</td>
+                        <td className="px-4 py-2 text-right text-white font-medium">
+                          {m.latest ?? '—'}
+                        </td>
                         <td className="px-4 py-2 text-right text-red-400 font-medium">{m.delta}</td>
                       </tr>
                     ))}
@@ -235,7 +240,8 @@ export default function DataPage() {
 
           {gainers.length === 0 && losers.length === 0 && (
             <p className="text-zinc-500 text-sm">
-              No domains changed DR in the latest weekly window — all tracked sites are stable.
+              No recent weekly movement is available. Missing or stale observations do not prove
+              stability.
             </p>
           )}
         </section>
@@ -267,11 +273,14 @@ export default function DataPage() {
                         {m.domain}
                       </a>
                     </td>
-                    <td className="px-4 py-2 text-right text-white font-medium">{m.latest}</td>
+                    <td className="px-4 py-2 text-right text-white font-medium">
+                      {m.latest ?? '—'}
+                    </td>
                     <td className="px-4 py-2 text-right">
                       {m.direction === 'up' && <span className="text-green-400">+{m.delta}</span>}
                       {m.direction === 'down' && <span className="text-red-400">{m.delta}</span>}
-                      {m.direction === 'flat' && <span className="text-zinc-500">—</span>}
+                      {m.direction === 'flat' && <span className="text-zinc-500">0</span>}
+                      {!m.direction && <span className="text-zinc-500">Unavailable</span>}
                     </td>
                     <td className="px-4 py-2 text-right text-zinc-500">{m.history.length}</td>
                   </tr>

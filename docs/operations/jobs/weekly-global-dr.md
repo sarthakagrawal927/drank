@@ -1,7 +1,7 @@
 # Weekly global DR job
 
-A GitHub Action refreshes the shared global (and fleet) DR history every
-week and commits the result back to the repo.
+A GitHub Action attempts to collect the shared global and fleet DR history weekly.
+A schedule is not evidence that fresh observations were received.
 
 ## Schedule
 
@@ -16,8 +16,7 @@ week and commits the result back to the repo.
    (`data/global-sites.json` → `data/global-dr.json`).
 3. Runs the same script again with `--sites data/fleet-sites.json
    --data data/fleet-dr.json --label fleet` for the fleet-owned list.
-4. Copies both JSON files into `public/data/` so the deployed `/data`
-   download copies stay fresh.
+4. Copies both JSON files into `public/data/` for the next approved static deployment.
 5. Commits `data/{global,fleet}-dr.json` and
    `public/data/{global,fleet}-dr.json` with message
    `chore(dr): weekly update global DR history` and pushes, only if there
@@ -31,8 +30,8 @@ week and commits the result back to the repo.
   public endpoint with a friendly `User-Agent` and a 650 ms delay between
   requests (see [ADR-0006](../../architecture/decisions/0006-request-pacing.md)).
 - Appends a new `{ts, dr}` point only if there is not already a point for
-  today (same calendar day). If today's point exists and DR changed, it
-  updates it in place.
+  today (same UTC calendar day). Another successful observation that day
+  replaces that point, including its timestamp, even if DR is unchanged.
 - Preserves history for domains removed from the seed list (seeds from
   `existing.domains`).
 - Preserves `communityNominations` if present.
@@ -41,8 +40,13 @@ week and commits the result back to the repo.
 
 ## Failure modes
 
-- A single domain fetch failure logs `[warn]` and keeps the prior history
-  for that domain; the run continues.
+- A failed domain keeps its prior history. Successful collections record
+  attempted/succeeded/failed counts. Only real successful observations advance
+  `lastUpdated`; partial success does not mean every domain is current.
+- If every lookup fails (or there are no targets), the CLI exits nonzero without
+  writing the data file. Provider requests have a 15-second timeout.
+- Older files may have a misleading `lastUpdated` from the previous collector.
+  Freshness must be derived from each domain's latest history timestamp.
 - A `429` from Ahrefs logs a warn for that domain and moves on. The 650 ms
   pacing is conservative; sustained `429`s would indicate the free tier is
   overloaded — do not tighten the delay.
@@ -62,11 +66,33 @@ if running locally.
 ## Where the data goes
 
 - `data/global-dr.json` is bundled into the build (instant first paint)
-  and re-fetched at runtime from raw GitHub (fresh without redeploy). See
-  [ADR-0005](../../architecture/decisions/0005-dual-data-sources.md).
+  and re-fetched from same-origin `/data/global-dr.json` by default. Both copies
+  reflect the deployed snapshot. A configured public external origin can override
+  this; it is not the default. See [ADR-0007](../../architecture/decisions/0007-observation-freshness.md).
 - `public/data/global-dr.json` and `public/data/fleet-dr.json` are the
   downloadable copies surfaced on the `/data` page.
 
-The workflow is owned at the Fleet monorepo root and runs its commands from
-the repository root, so GitHub discovers the schedule while DRank retains
-the script and data-path contract.
+The workflow lives in the standalone `sass-maker/drank` repository.
+Committing a dataset does not deploy Pages. Production deployment remains a
+separate authorized action.
+
+## Qualification receipt — 2026-09-07
+
+The [scheduled run](https://github.com/sass-maker/drank/actions/runs/34104568403)
+reported success and advanced the raw file date to September 7 while all 45
+latest global observations remained August 17. The deployed browser showed
+August 31 as its file date and three-week-old observations. Those timestamps
+establish stale data, not its underlying credential/provider failure cause.
+
+The repaired collector has a credential-free CLI test that injects HTTP 403,
+asserts nonzero exit and byte-identical history, plus partial-success, valid-zero,
+invalid-rating and same-day observation tests. UI helpers reject stale or widely
+spaced weekly comparisons; full historical rows remain visible. The dataset's
+`?domain=` links now select the matching shared history on first load.
+Chrome verification confirmed the deployed history itself contains 11 points
+through August 17, while its dataset deep link did not open history. The repaired
+local static build opens the matching history, dismisses without reopening, and
+shows all 45 historical rows with unavailable current-week comparisons.
+
+Fresh provider collection and production deployment remain
+[#18](https://github.com/sass-maker/drank/issues/18).

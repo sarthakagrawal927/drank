@@ -3,7 +3,7 @@
 drank is a **statically exported Next.js 16 app** deployed to Cloudflare
 Pages, with two small Pages Functions providing the only dynamic surface.
 All personal state lives in the browser; shared leaderboard data is public
-JSON refreshed weekly by a GitHub Action.
+JSON collected by a weekly GitHub Action when provider lookups succeed.
 
 ## Topology
 
@@ -12,7 +12,7 @@ Browser (single page, app/page.tsx)
   ├── localStorage (v2 schema) ── personal domains, history, predictions, settings
   ├── /api/dr      ── Pages Function ── Ahrefs free public DR endpoint
   ├── /api/advisor ── Pages Function ── fleet free-ai gateway (DR Advisor)
-  └── static build-time data + runtime fetch of raw GitHub JSON (global leaderboard)
+  └── static build-time data + runtime fetch of deployed same-origin JSON (global leaderboard)
 
 Cloudflare Pages
   ├── out/                       (static export, output: 'export')
@@ -60,8 +60,9 @@ under a separate key `drank:advisor:v1` keyed by a measurement bucket (see
 - **Personal domains**: client calls `/api/dr?target=` → Pages Function →
   Ahrefs → DR number appended to local history.
 - **Global leaderboard**: bundled at build time from `data/global-dr.json`
-  for instant render, then re-fetched at runtime from the raw GitHub URL so
-  weekly cron updates appear without redeploy.
+  for instant render, then re-fetched from same-origin deployed JSON by default.
+  Repository updates require a separate approved deployment; see
+  [ADR-0007](decisions/0007-observation-freshness.md).
 - **DR Advisor**: explicit Explain action → `POST /api/advisor` with a
   bounded request → gateway → structured, validated advice → cached locally.
 

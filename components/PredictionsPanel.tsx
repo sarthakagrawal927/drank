@@ -86,7 +86,7 @@ export function PredictionsPanel({
         {predictions.length === 0 ? (
           <div className="text-sm text-white/50 py-2">
             No predictions yet. Nominate sites above or from the leaderboard. They will be scored
-            against the live shared data.
+            against the latest available shared snapshot; this is not a future-outcome evaluation.
           </div>
         ) : (
           <div className="space-y-1 text-sm">
@@ -110,7 +110,7 @@ export function PredictionsPanel({
                   <div className="flex items-center gap-3 text-xs">
                     {actualRank ? (
                       <span className={isHit ? 'text-emerald-400' : 'text-white/60'}>
-                        currently #{actualRank}
+                        snapshot rank #{actualRank}
                       </span>
                     ) : (
                       <span className="text-white/40">unranked</span>

@@ -1,5 +1,7 @@
 'use client';
 
+import { recentWeeklyBaseline } from './data-freshness';
+
 import type { HistoryPoint, SortMode, StoredState, TrackedDomain } from './types';
 
 const STORAGE_KEY = 'drank:v1';
@@ -306,24 +308,9 @@ export function getFaviconUrl(domain: string): string {
 export function getWeeklyChange(
   domain: TrackedDomain
 ): { delta: number; direction: 'up' | 'down' | 'flat' } | null {
-  if (domain.history.length < 2) return null;
-
-  const now = Date.now();
-  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
-
-  // Find the most recent point before or around a week ago, and the latest
-  const sorted = [...domain.history].sort((a, b) => a.ts - b.ts);
-  const latest = sorted[sorted.length - 1];
-
-  // Find the closest point that is at least ~5 days old (to have meaningful "weekly")
-  let base: HistoryPoint | null = null;
-  for (let i = sorted.length - 2; i >= 0; i--) {
-    if (sorted[i].ts <= weekAgo + 2 * 24 * 60 * 60 * 1000) {
-      base = sorted[i];
-      break;
-    }
-  }
-  if (!base) base = sorted[0];
+  const comparison = recentWeeklyBaseline(domain.history);
+  if (!comparison) return null;
+  const { latest, base } = comparison;
 
   const delta = Number((latest.dr - base.dr).toFixed(1));
   if (delta > 0) return { delta, direction: 'up' };

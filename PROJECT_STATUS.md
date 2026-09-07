@@ -160,3 +160,14 @@ Wrangler Pages command). CI validates `main` but does not deploy it.
 Open work is tracked only in [GitHub Issues](https://github.com/sass-maker/drank/issues).
 An open issue is a to-do, a linked pull request is in progress, and merge plus
 issue closure makes the work done.
+
+## Freshness qualification — 2026-09-07
+
+The collector and dashboard now distinguish successful observations from file
+updates, reject all-failed collection runs without rewriting history, and avoid
+presenting stale comparisons as current weekly changes. Public dataset deep
+links select shared domain history. Evidence and remaining gates live in the
+[weekly job receipt](docs/operations/jobs/weekly-global-dr.md); task reconciliation
+is [#17](https://github.com/sass-maker/drank/issues/17) and
+[#18](https://github.com/sass-maker/drank/issues/18). No production deployment or
+fresh provider observations were performed by this repair.

@@ -17,10 +17,10 @@ A beautiful, private Next.js dashboard that uses Ahrefs’ free public Domain Ra
 ## Features
 
 - Two clear sections + new social features:
-  - **Global Examples** (shared): ~45 popular sites with rich historical DR data that is **identical for all users** (from `data/global-dr.json`, maintained by weekly GitHub Action).
-  - **Current Leaderboard**: Ranked view of the shared globals (with quick "Predict" buttons).
+  - **Global Examples** (shared): ~45 popular sites with historical DR observations. Collection is scheduled weekly; actual observation dates and stale counts show whether data is current.
+  - **Latest Observed Leaderboard**: Ranked view of the shared globals (with quick "Predict" buttons).
   - **Your Sites** (private, localStorage + weekly auto when open).
-  - **Predict the Top / Submit contenders**: Nominate any site you think will rise. Your predictions are scored live against the actual shared leaderboard ("X of your picks are in the current Top 20"). "Share my predictions" generates a GitHub issue + copyable list so the community can merge good nominations into the shared `communityNominations`.
+  - **Predict the Top / Submit contenders**: Nominate any site you think will rise. Your picks are compared with the latest shared snapshot; this is not a future-outcome evaluation. "Share my predictions" generates a GitHub issue + copyable list so the community can merge good nominations into the shared `communityNominations`.
 - Beautiful Domain Cards, Bento stats, Gainers/Losers, premium modals.
 - Export/Import your personal data + predictions as JSON.
 
@@ -95,10 +95,10 @@ endpoints are served as Cloudflare Pages Functions (`functions/api/dr.ts`,
 
 The app works great on Cloudflare Pages:
 - The `/api/dr` proxy runs as a Pages Function (CORS bypass + friendly User-Agent).
-- All global leaderboard data is loaded at build time + refreshed at runtime from the raw GitHub JSON (so weekly Action updates appear without manual redeploys).
+- The global leaderboard loads bundled data and re-fetches same-origin JSON by default. GitHub data commits require a separate approved deployment to update that snapshot.
 - User data and predictions stay 100% in the browser (localStorage).
 
-See the GitHub Action in `.github/workflows/` (move to repo root `.github` if this is part of a larger monorepo).
+See the [weekly job and qualification receipt](docs/operations/jobs/weekly-global-dr.md).
 
 ## Project layout (key files)
 
@@ -128,3 +128,13 @@ The core dataset and leaderboard from drank power a first-class lens inside [Hig
 - The full interactive experience (personal predictions, local tracking, detailed history) lives here as the standalone companion tool.
 - Data stays in the public GitHub JSON + GitHub Action pipeline for easy cross-product reuse.
 - Integrated as the `/domains` lens inside https://highsignal.app (web authority leaderboard + community nominations).
+
+## Remaining work
+
+The verified local freshness/deep-link repair is [#17](https://github.com/sass-maker/drank/issues/17).
+Fresh provider access, successful observations, deployment and public data
+qualification remain [#18](https://github.com/sass-maker/drank/issues/18), along
+with the retained owner-authored learning notes. See the
+[weekly job receipt](docs/operations/jobs/weekly-global-dr.md) for current evidence.
+There were no earlier open issues or PRs to close at the September 7 review.
+Always-on personal tracking and broader product expansion remain out of scope.

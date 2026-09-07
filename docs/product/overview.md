@@ -21,7 +21,8 @@ in `localStorage`. No sign-up, no server storage of user data.
 
 1. **Global Examples** (shared, identical for all users) — ~45 popular sites
    with rich historical DR data from `data/global-dr.json`, maintained by a
-   weekly GitHub Action. Includes a ranked **Current Leaderboard**.
+   weekly GitHub Action when provider lookups succeed. Includes a ranked
+   **Latest Observed Leaderboard**, with actual observation freshness disclosed.
 2. **Your Sites** (private, localStorage + weekly auto when the tab is open) —
    domains you add are marked `isCustom` and become eligible for weekly
    auto-refresh.

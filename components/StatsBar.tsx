@@ -1,7 +1,7 @@
 'use client';
 
 import { BarChart3, TrendingUp, Users } from 'lucide-react';
-import { computeGainersLosers } from '@/lib/utils';
+import { computeGainersLosers, getWeeklyChange } from '@/lib/utils';
 import type { TrackedDomain } from '@/lib/types';
 
 interface StatsBarProps {
@@ -12,6 +12,7 @@ interface StatsBarProps {
 
 export function StatsBar({ stats, customCount, liveGlobalDomains }: StatsBarProps) {
   const { gainers, losers } = computeGainersLosers(liveGlobalDomains);
+  const comparable = liveGlobalDomains.filter((domain) => getWeeklyChange(domain) !== null).length;
 
   return (
     <div
@@ -53,13 +54,17 @@ export function StatsBar({ stats, customCount, liveGlobalDomains }: StatsBarProp
           <TrendingUp className="h-3.5 w-3.5" /> GLOBAL MOVERS
         </div>
         <div className="mt-3 flex items-baseline gap-3 text-6xl font-semibold tabular-nums tracking-[-2px]">
-          <span className="text-white">{gainers.length}</span>
+          <span className="text-white">{comparable ? gainers.length : '—'}</span>
           <span className="text-3xl text-emerald-400">↑</span>
           <span className="text-4xl text-zinc-400">/</span>
-          <span className="text-white">{losers.length}</span>
+          <span className="text-white">{comparable ? losers.length : '—'}</span>
           <span className="text-3xl text-red-400">↓</span>
         </div>
-        <div className="mt-1 text-xs text-zinc-500">gainers / losers in shared data (~7d)</div>
+        <div className="mt-1 text-xs text-zinc-500">
+          {comparable
+            ? `gainers / losers among ${comparable} of ${liveGlobalDomains.length} comparable sites (~7d)`
+            : 'Weekly movement unavailable — no recent comparisons'}
+        </div>
       </div>
     </div>
   );
