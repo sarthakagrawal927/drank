@@ -53,12 +53,22 @@ export function StatsBar({ stats, customCount, liveGlobalDomains }: StatsBarProp
         <div className="flex items-center gap-2 text-xs uppercase tracking-[1px] text-zinc-500">
           <TrendingUp className="h-3.5 w-3.5" /> GLOBAL MOVERS
         </div>
-        <div className="mt-3 flex items-baseline gap-3 text-6xl font-semibold tabular-nums tracking-[-2px]">
-          <span className="text-white">{comparable ? gainers.length : '—'}</span>
-          <span className="text-3xl text-emerald-400">↑</span>
-          <span className="text-4xl text-zinc-400">/</span>
-          <span className="text-white">{comparable ? losers.length : '—'}</span>
-          <span className="text-3xl text-red-400">↓</span>
+        <div className="mt-3 flex flex-wrap items-baseline gap-2 text-2xl font-semibold tabular-nums sm:text-3xl">
+          {comparable ? (
+            <>
+              <span className="text-white">
+                {gainers.length}
+                <span className="ml-1 text-base text-emerald-400">↑</span>
+              </span>
+              <span className="text-lg text-zinc-400">/</span>
+              <span className="text-white">
+                {losers.length}
+                <span className="ml-1 text-base text-red-400">↓</span>
+              </span>
+            </>
+          ) : (
+            <span className="text-6xl text-white">—</span>
+          )}
         </div>
         <div className="mt-1 text-xs text-zinc-500">
           {comparable
