@@ -131,3 +131,14 @@ Remaining [#18](https://github.com/sass-maker/drank/issues/18) acceptance:
   desktop personal/history/data-link journeys against that exact deployment.
 - Retain the owner-authored learning notes; advisor and public nomination paths
   were not exercised in this personal-tracking qualification.
+
+### Attribution repair — 2026-09-08
+
+The current [Ahrefs terms](https://ahrefs.com/legal/domain-rating-license) were
+rechecked. Linked, legible “Domain Rating by Ahrefs” credit now appears beside
+rating cards, history, leaderboard and data-page displays, rather than only a
+faint generic footer. A built-static 390px browser shows the linked credit beside
+ratings with no horizontal overflow. All 80 tests, full quality and static build
+pass. These source checks do not resolve raw-data redistribution, qualify the
+scheduled provider path, or establish new observation freshness. Issue #18
+retains those separate gates.

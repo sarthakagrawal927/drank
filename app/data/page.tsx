@@ -1,3 +1,4 @@
+import { DrAttribution } from '@/components/DrAttribution';
 import type { Metadata } from 'next';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -132,6 +133,9 @@ export default function DataPage() {
           This page and its downloads reflect the deployed snapshot.
         </p>
 
+        <div className="mb-4">
+          <DrAttribution />
+        </div>
         <div className="grid grid-cols-3 gap-4 mb-10">
           <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800">
             <div className="text-2xl font-bold text-white">{totalDomains}</div>
@@ -171,6 +175,7 @@ export default function DataPage() {
 
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-white mb-1">Weekly DR Movers</h2>
+          <DrAttribution />
           <p className="text-zinc-400 text-sm mb-6">
             Only observations at most 9 days old with a comparison 5–9 days earlier qualify. Older
             or missing observations cannot establish current weekly movement.

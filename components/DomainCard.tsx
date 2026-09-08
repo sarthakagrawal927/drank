@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { DrAttribution } from '@/components/DrAttribution';
 import { ArrowDown, ArrowUp, Minus, RefreshCw, BarChart3, Trash2 } from 'lucide-react';
 import {
   Sparkline,
@@ -90,6 +91,8 @@ export function DomainCard({ d, isCustom, isUpdating, onOpen, actions }: DomainC
           />
         )}
       </div>
+
+      <DrAttribution />
 
       <div className="flex items-center gap-2 text-sm mt-0.5">
         {t && (

@@ -1,5 +1,6 @@
 'use client';
 
+import { DrAttribution } from '@/components/DrAttribution';
 import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -532,6 +533,7 @@ function DomainDetailModal(props: {
                 <img src={getFaviconUrl(selected.domain)} className="h-8 w-8 rounded-lg" alt="" />
                 <div>
                   <div className="font-mono text-lg text-white">{selected.domain}</div>
+                  <DrAttribution />
                   <div className="text-xs text-white/50">
                     {selected.isCustom ? 'Your site • auto-refreshes weekly' : 'Popular site'}
                   </div>
@@ -896,6 +898,9 @@ function LeaderboardSection({ state }: { state: DrankState }) {
           </div>
         )}
       </div>
+      <div className="mb-3">
+        <DrAttribution />
+      </div>
       <Leaderboard
         leaderboard={state.leaderboard}
         onOpen={state.openGlobalDomain}
@@ -965,7 +970,7 @@ function Footer() {
       No account. No personal-domain database. Your domains, history, and generated advice stay in
       this browser.
       <br className="mb-1" />
-      <span className="text-white/25">DR data via Ahrefs free public API · </span>
+      <DrAttribution />
       <a
         href="https://highsignal.app/domains"
         target="_blank"
